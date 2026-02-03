@@ -72,4 +72,7 @@ public class Board {
     }
 
 
+    public char getCell(int row, int col) {
+        return board[row][col];
+    }
 }

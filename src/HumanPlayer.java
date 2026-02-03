@@ -9,6 +9,7 @@ public class HumanPlayer implements Player{
         this.scanner = scanner;
 
     }
+
     @Override
     public void makeMove(Board board) {
         while(true){

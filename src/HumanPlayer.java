@@ -3,4 +3,8 @@ public class HumanPlayer implements Player{
     public void makeMove(Board board) {
 
     }
+
+    public void getSymbol(){
+
+    }
 }

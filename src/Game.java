@@ -1,4 +1,3 @@
-import java.util.Random;
 import java.util.Scanner
         ;
 public class Game{
@@ -18,32 +17,19 @@ public class Game{
 
     //Game logic
     public static void playGame(){
-        char humanPlayer = selectPlayer();
-        char aiPlayer = (humanPlayer == 'X') ? 'O' : 'X';
-        char currentPlayer = 'X';
+        Player player1 = new HumanPlayer(selectPlayer(), scanner);
+        Player player2 = new AiPlayer((player1.getSymbol() == 'X') ? 'O' : 'X');
+
+       Player currentPlayer = player1;
         Board board = new Board();
 
         while(true){
             board.printBoard();
+            currentPlayer.makeMove(board);
 
-            if(currentPlayer == humanPlayer){
-                //Assigning row and column indices for human player
-                System.out.println("Player " + currentPlayer + ", enter your move (row and column): ");
-                int row = scanner.nextInt();
-                int col = scanner.nextInt();
-
-                if(!board.playerMove(row, col, currentPlayer)){
-                    System.out.println("Invalid move, please try again");
-                    continue;
-                }
-            }else {
-                //Current player = AI
-                aiMove(board, aiPlayer);
-            }
-
-            if(board.isWinner(currentPlayer)){
+            if(board.isWinner(currentPlayer.getSymbol())){
                 board.printBoard();
-                System.out.println(currentPlayer == humanPlayer? "You win!" : " wins!");
+                System.out.println(currentPlayer.getSymbol() + " wins!");
                 break;
             }
 
@@ -54,7 +40,7 @@ public class Game{
             }
 
             //Switching players
-            currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
+            currentPlayer = (currentPlayer == player1) ? player2 : player1;
 
         }
     }
@@ -89,17 +75,4 @@ public class Game{
         }
     }
 
-
-    //AI player logic(random)
-    private static void aiMove(Board board, char aiPlayer){
-        Random random = new Random();
-        int row, col;
-
-        do {
-            row = random.nextInt(3);
-            col = random.nextInt(3);
-        } while(!board.playerMove(row, col, aiPlayer));
-        System.out.println("AI placed " + aiPlayer + " at " + "(" + row + "," + col + ")" );
-
-    }
 }

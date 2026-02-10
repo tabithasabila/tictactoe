@@ -1,6 +1,7 @@
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.control.Label;
@@ -22,12 +23,28 @@ public class TicTacToeUI extends Application{
     @Override
     public void start(Stage primaryStage){
         board = new Board();
-        GridPane grid = new GridPane();
+
+        //Nodes
+        ComboBox<String> symbolSelector = new ComboBox<>();
+        symbolSelector.getItems().addAll("X", "O");
+        symbolSelector.setValue("X");
 
         human = 'X';
         ai = 'O';
 
+        GridPane grid = new GridPane();
+
+        //Dropdown behavior
+        symbolSelector.setOnAction(e ->{
+            human = symbolSelector.getValue().charAt(0);
+            ai = (human == 'X') ? 'O' : 'X';
+            resetGame();
+        });
+
         statusLabel = new Label("Player " + human + "'s turn");
+
+        Button resetButton = new Button("Reset");
+        resetButton.setOnAction(e -> resetGame());
 
         for(int i = 0; i < 3; i++){
             for(int j = 0; j < 3; j++){
@@ -44,9 +61,14 @@ public class TicTacToeUI extends Application{
             }
         }
 
-        VBox root = new VBox(10, statusLabel, grid);
+        //Layout
+        VBox root = new VBox(10,symbolSelector, statusLabel, grid, resetButton);
+
+        //Creating the scene
         Scene scene = new Scene(root);
         primaryStage.setScene(scene);
+
+        //Setting the stage
         primaryStage.setTitle("Tic Tac Toe");
         primaryStage.show();
 
@@ -72,15 +94,10 @@ public class TicTacToeUI extends Application{
 
         if(board.isBoardFull()){
             statusLabel.setText("Game is a tie");
+            return;
         }
 
-        aiMove(board);
-        //Place AI move
-        for(int i = 0; i<3; i++){
-            for(int j = 0; j<3; j++){
-                button[i][j].setText(String.valueOf(board.getCell(i, j)));
-            }
-        }
+        aiMove();
 
         //AI winning the game
         if(board.isWinner(ai)){
@@ -91,8 +108,8 @@ public class TicTacToeUI extends Application{
 
         //Tie
         if(board.isBoardFull()){
-            board.printBoard();
             statusLabel.setText("Game is a tie");
+            return;
         }
 
         statusLabel.setText("Player " + human + "'s turn");
@@ -108,7 +125,7 @@ public class TicTacToeUI extends Application{
     }
 
     //Controlling the Ai moves
-    public void aiMove(Board board) {
+    public void aiMove() {
 
         Random random = new Random();
         int row, col;
@@ -121,5 +138,21 @@ public class TicTacToeUI extends Application{
         button[row][col].setText(String.valueOf(ai));
 
     }
+
+    //Resetting the game
+    public void resetGame(){
+        board = new Board();
+
+        for(int i = 0; i < 3; i++){
+            for(int j = 0; j < 3; j++){
+                button[i][j].setText(" ");
+                button[i][j].setDisable(false);
+            }
+        }
+
+        //Resetting the label
+        statusLabel.setText("Player " + human + "'s turn");
+    }
+
 
 }

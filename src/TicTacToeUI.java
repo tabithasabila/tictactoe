@@ -1,7 +1,10 @@
 import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.control.Label;
@@ -25,6 +28,7 @@ public class TicTacToeUI extends Application{
         board = new Board();
 
         //Nodes
+        Image gameIcon = new Image("game-icon.png");
         ComboBox<String> symbolSelector = new ComboBox<>();
         symbolSelector.getItems().addAll("X", "O");
         symbolSelector.setValue("X");
@@ -32,7 +36,12 @@ public class TicTacToeUI extends Application{
         human = 'X';
         ai = 'O';
 
+        //Grid pane
         GridPane grid = new GridPane();
+        grid.getStyleClass().add("grid-pane");
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setAlignment(Pos.CENTER);
 
         //Dropdown behavior
         symbolSelector.setOnAction(e ->{
@@ -41,7 +50,9 @@ public class TicTacToeUI extends Application{
             resetGame();
         });
 
+        //Label
         statusLabel = new Label("Player " + human + "'s turn");
+        statusLabel.getStyleClass().add("status-label");
 
         Button resetButton = new Button("Reset");
         resetButton.setOnAction(e -> resetGame());
@@ -49,7 +60,7 @@ public class TicTacToeUI extends Application{
         for(int i = 0; i < 3; i++){
             for(int j = 0; j < 3; j++){
                 Button btn = new Button(" ");
-                btn.setMinSize(100,100);
+                btn.setMinSize(150,150);
 
                 final int row = i;
                 final int col = j;
@@ -62,13 +73,16 @@ public class TicTacToeUI extends Application{
         }
 
         //Layout
-        VBox root = new VBox(10,symbolSelector, statusLabel, grid, resetButton);
+        VBox root = new VBox(20,symbolSelector, statusLabel, grid, resetButton);
 
         //Creating the scene
         Scene scene = new Scene(root);
-        primaryStage.setScene(scene);
+        scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
 
         //Setting the stage
+        primaryStage.setScene(scene);
+        primaryStage.getIcons().add(gameIcon);
+        primaryStage.setFullScreen(true);
         primaryStage.setTitle("Tic Tac Toe");
         primaryStage.show();
 
@@ -83,7 +97,7 @@ public class TicTacToeUI extends Application{
         }
 
         //If valid print symbol
-        btn.setText(String.valueOf(human));
+        updateButtonUi(btn, human);
 
         //Check win/tie
         if(board.isWinner(human)){
@@ -135,7 +149,7 @@ public class TicTacToeUI extends Application{
             col = random.nextInt(3);
         } while(!board.playerMove(row, col, ai));
 
-        button[row][col].setText(String.valueOf(ai));
+        updateButtonUi(button[row][col], ai);
 
     }
 
@@ -154,5 +168,15 @@ public class TicTacToeUI extends Application{
         statusLabel.setText("Player " + human + "'s turn");
     }
 
+    private void updateButtonUi(Button btn, char symbol){
+        btn.setText(String.valueOf(symbol));
+
+        btn.getStyleClass().removeAll("o-cell", "x-cell");
+        if(symbol == 'X'){
+            btn.getStyleClass().add("x-cell");
+        }else{
+            btn.getStyleClass().add("o-cell");
+        }
+    }
 
 }

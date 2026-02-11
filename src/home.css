@@ -1,0 +1,35 @@
+.root{
+    -fx-primary-color: #c35031 ;
+    -fx-secondary-color: #6a844e ;
+    -fx-text-color: #3b2a25;
+    -fx-background-color: #fdf8f2;
+
+    -fx-font-family: "Nunito";
+
+}
+
+.label{
+    -fx-font-family: "Playfair Display";
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-text-color;
+}
+
+.button {
+    -fx-background-color: -fx-primary-color;
+    -fx-text-fill: #fdf8f2;
+    -fx-padding: 10 20;
+    -fx-background-radius: 15;
+}
+
+.button:hover{
+    -fx-opacity: 0.5;
+}
+
+
+.label {
+    -fx-font-size: 18px;
+    -fx-text-fill: black;
+}
+
+
+

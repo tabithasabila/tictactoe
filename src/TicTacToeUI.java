@@ -132,7 +132,8 @@ public class TicTacToeUI extends Application{
         //Layout
         VBox root = new VBox(20,symbolSelector, scoreBoard, statusLabel, grid, resetButton);
 
-        //Rectangle overlay = new Rectangle(width, height, Color.rgb(0,0,0,0.5));
+        Rectangle overlay = new Rectangle();
+        overlay.setFill(Color.rgb(0,0,0,0.5));
 
         //Creating the scene
         Scene scene = new Scene(root);
@@ -165,7 +166,7 @@ public class TicTacToeUI extends Application{
             statusLabel.setText(human + " wins!");
             disableAllButtons();
             updateScore(human);
-            showWinnerAlert(human);
+            //showWinnerAlert(human);
             return;
         }
 
@@ -176,7 +177,7 @@ public class TicTacToeUI extends Application{
 
         updateTurnUi(ai);
 
-        PauseTransition pauseAi = new PauseTransition(Duration.millis(400));
+        PauseTransition pauseAi = new PauseTransition(Duration.millis(700));
         pauseAi.setOnFinished(e->{
             aiMove();
             updateTurnUi(human);
@@ -188,7 +189,7 @@ public class TicTacToeUI extends Application{
             statusLabel.setText(ai + " wins!");
             disableAllButtons();
             updateScore(ai);
-            showWinnerAlert(ai);
+            //showWinnerAlert(ai);
             return;
         }
 
@@ -225,7 +226,26 @@ public class TicTacToeUI extends Application{
     }
 
     private void showWinnerAlert(char winner) {
+        Label title = new Label("Player " + winner + " 's!");
+        title.getStyleClass().add("win_title");
+        title.setAlignment(Pos.CENTER);
 
+        Button btn = new Button("Play Again");
+        btn.setMinWidth(200);
+        btn.getStyleClass().add("play-again");
+        btn.setAlignment(Pos.CENTER);
+
+        Button home = new Button("Return to home");
+        home.setMinWidth(200);
+        home.getStyleClass().add("home");
+        home.setAlignment(Pos.CENTER);
+
+        VBox card = new VBox();
+        card.getStyleClass().add("win_card");
+        card.setMinSize(300, 250);
+        card.setAlignment(Pos.CENTER);
+
+        card.getChildren().addAll(title,btn,home);
     }
 
     //Resetting the game

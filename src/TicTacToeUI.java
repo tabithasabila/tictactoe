@@ -10,6 +10,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.control.Label;
 import javafx.scene.paint.Color;
@@ -21,6 +22,7 @@ import java.util.Random;
 
 public class TicTacToeUI extends Application{
     private Board board;
+    StackPane root;
 
     //Players
     private char human;
@@ -130,10 +132,10 @@ public class TicTacToeUI extends Application{
         }
 
         //Layout
-        VBox root = new VBox(20,symbolSelector, scoreBoard, statusLabel, grid, resetButton);
-
-        Rectangle overlay = new Rectangle();
-        overlay.setFill(Color.rgb(0,0,0,0.5));
+        root = new StackPane();
+        VBox gameLayout = new VBox(20,symbolSelector, scoreBoard, statusLabel, grid, resetButton);
+        gameLayout.setAlignment(Pos.CENTER);
+        root.getChildren().add(gameLayout);
 
         //Creating the scene
         Scene scene = new Scene(root);
@@ -153,7 +155,6 @@ public class TicTacToeUI extends Application{
 
         //Flow of the game, initiated by human
         if (!board.playerMove(row, col, human)) {
-            //statusLabel.setText("Invalid move, please try again");
             return;
         }
 
@@ -163,15 +164,14 @@ public class TicTacToeUI extends Application{
 
         //Check win/tie
         if(board.isWinner(human)){
-            statusLabel.setText(human + " wins!");
             disableAllButtons();
             updateScore(human);
-            //showWinnerAlert(human);
+            showGameStatus(human);
             return;
         }
 
         if(board.isBoardFull()){
-            statusLabel.setText("Game is a tie");
+            showGameStatus('T');
             return;
         }
 
@@ -180,24 +180,24 @@ public class TicTacToeUI extends Application{
         PauseTransition pauseAi = new PauseTransition(Duration.millis(700));
         pauseAi.setOnFinished(e->{
             aiMove();
+            //AI winning the game
+            if(board.isWinner(ai)){
+//                statusLabel.setText(ai + " wins!");
+                disableAllButtons();
+                updateScore(ai);
+                showGameStatus(ai);
+                return;
+            }
             updateTurnUi(human);
         });
         pauseAi.play();
 
-        //AI winning the game
-        if(board.isWinner(ai)){
-            statusLabel.setText(ai + " wins!");
-            disableAllButtons();
-            updateScore(ai);
-            //showWinnerAlert(ai);
-            return;
-        }
-
         //Tie
         if(board.isBoardFull()){
-            statusLabel.setText("Game is a tie");
-            return;
+            showGameStatus('T');
         }
+
+        return;
 
     }
 
@@ -225,27 +225,57 @@ public class TicTacToeUI extends Application{
 
     }
 
-    private void showWinnerAlert(char winner) {
-        Label title = new Label("Player " + winner + " 's!");
+    private void showGameStatus(char winner) {
+        String message;
+        if(winner == 'T'){
+            message = "Game is a tie";
+        }else{
+            message = "Player " + winner + " wins!";
+        }
+        Label title = new Label(message);
         title.getStyleClass().add("win_title");
         title.setAlignment(Pos.CENTER);
 
         Button btn = new Button("Play Again");
-        btn.setMinWidth(200);
+        btn.setMinWidth(300);
         btn.getStyleClass().add("play-again");
         btn.setAlignment(Pos.CENTER);
 
         Button home = new Button("Return to home");
-        home.setMinWidth(200);
+        home.setMinWidth(300);
         home.getStyleClass().add("home");
         home.setAlignment(Pos.CENTER);
 
-        VBox card = new VBox();
+        VBox card = new VBox(20);
         card.getStyleClass().add("win_card");
         card.setMinSize(300, 250);
+        card.setMaxSize(300, 250);
         card.setAlignment(Pos.CENTER);
 
         card.getChildren().addAll(title,btn,home);
+
+        VBox overlay = new VBox();
+        overlay.setAlignment(Pos.CENTER);
+        overlay.getStyleClass().add("overlay");
+        overlay.getChildren().add(card);
+
+        btn.setOnAction(e -> {
+            root.getChildren().remove(overlay);
+            resetGame();
+        });
+
+        home.setOnAction(e -> {
+            root.getChildren().remove(overlay);
+            showHome();
+        });
+
+        root.getChildren().add(overlay);
+
+    }
+
+    //Returning to the Home screen
+    private void showHome(){
+
     }
 
     //Resetting the game

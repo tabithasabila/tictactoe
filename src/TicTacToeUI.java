@@ -1,20 +1,16 @@
+import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
 import javafx.animation.ScaleTransition;
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.control.Label;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -22,11 +18,13 @@ import java.util.Random;
 
 public class TicTacToeUI extends Application{
     private Board board;
-    StackPane root;
+    private StackPane root;
 
     //Players
     private char human;
     private char ai;
+
+    private boolean isAiMode;
 
     //ScoreCards
     VBox xCard;
@@ -40,6 +38,8 @@ public class TicTacToeUI extends Application{
     private int xScore = 0;
     private int oScore = 0;
 
+    private final StackPane contentArea = new StackPane();
+
     //Button
     Button[][] button = new Button[3][3];
 
@@ -50,8 +50,30 @@ public class TicTacToeUI extends Application{
     //Start Method
     @Override
     public void start(Stage primaryStage){
-        board = new Board();
 
+
+        //Stack pane
+        root = new StackPane();
+        root.getChildren().add(contentArea);
+
+        Image gameIcon = new Image("game-icon.png");
+
+        //Creating the scene
+        Scene scene = new Scene(root);
+        scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
+        showCard(createSelectPlayerModeCard());
+
+        //Setting the stage
+        primaryStage.setScene(scene);
+        primaryStage.getIcons().add(gameIcon);
+        primaryStage.setFullScreen(true);
+        primaryStage.setTitle("Tic Tac Toe");
+        primaryStage.show();
+
+    }
+
+    private VBox createGameBoard(){
+        board = new Board();
         //Label for Player X
         Label xName = new Label("Player X");
         xName.getStyleClass().add("player_name");
@@ -86,7 +108,6 @@ public class TicTacToeUI extends Application{
 
 
         //Nodes
-        Image gameIcon = new Image("game-icon.png");
         ComboBox<String> symbolSelector = new ComboBox<>();
         symbolSelector.getItems().addAll("X", "O");
         symbolSelector.setValue("X");
@@ -132,23 +153,96 @@ public class TicTacToeUI extends Application{
         }
 
         //Layout
-        root = new StackPane();
         VBox gameLayout = new VBox(20,symbolSelector, scoreBoard, statusLabel, grid, resetButton);
         gameLayout.setAlignment(Pos.CENTER);
-        root.getChildren().add(gameLayout);
 
-        //Creating the scene
-        Scene scene = new Scene(root);
-        scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
+        return gameLayout;
 
-        //Setting the stage
-        primaryStage.setScene(scene);
-        primaryStage.getIcons().add(gameIcon);
-        primaryStage.setFullScreen(true);
-        primaryStage.setTitle("Tic Tac Toe");
-        primaryStage.show();
+    }
 
+    private StackPane createHomeScreen(Stage stage){
+        Label title = new Label("Tic Tac Toe");
+        title.getStyleClass().add("game-title");
 
+        Label subTitle = new Label("A cozy game for two -- grab a friend and play!");
+        title.getStyleClass().add("game-subTitle");
+
+        contentArea.getStyleClass().add("home-root");
+        contentArea.getChildren().addAll(title,subTitle);
+        return contentArea;
+
+    }
+
+    private VBox createSelectPlayerModeCard(){
+        VBox playerModeCard = new VBox(20);
+        playerModeCard.getStyleClass().add("player-home-card");
+        playerModeCard.setAlignment(Pos.CENTER);
+
+        Button aiBtn = new Button("Play Vs Computer");
+        aiBtn.getStyleClass().add("home");
+        aiBtn.setOnAction(e->{
+            isAiMode = true;
+            showCard(createFillPlayerNameCard());
+        });
+
+        Button friendBtn = new Button("Play Vs Friend");
+        friendBtn.getStyleClass().add("home");
+        friendBtn.setOnAction(e->{
+            isAiMode = false;
+            showCard(createFillPlayerNameCard());
+        });
+
+        playerModeCard.getChildren().addAll(aiBtn, friendBtn);
+        return playerModeCard;
+    }
+
+    private VBox createFillPlayerNameCard(){
+        VBox playerNameCard = new VBox(20);
+        playerNameCard.getStyleClass().add("player-home-card");
+        playerNameCard.setAlignment(Pos.CENTER);
+
+        Label playerXLabel = new Label("Player 1 (X)");
+        playerXLabel.getStyleClass().add("player-home-label");
+        Label playerOLabel = new Label("Player 2 (O)");
+        playerOLabel.getStyleClass().add("player-home-label");
+
+        TextField playerX = new TextField("Enter name...");
+        TextField playerO = new TextField("Enter name...");
+
+        Button playNowBtn = new Button("Play Now");
+        playNowBtn.setAlignment(Pos.CENTER);
+        playNowBtn.getStyleClass().add("home");
+
+        playNowBtn.setOnAction(e->{
+            showCard(createGameBoard());
+        });
+
+        if(isAiMode){
+            playerO.setText("Computer");
+            playerO.setEditable(false);
+        }
+
+        playerNameCard.getChildren().addAll(playerXLabel, playerX, playerOLabel, playerO, playNowBtn);
+        return playerNameCard;
+    }
+
+    private void showCard(Node newCard){
+        if(!contentArea.getChildren().isEmpty()){
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(200), contentArea);
+            fadeOut.setFromValue(1.0);
+            fadeOut.setToValue(0.0);
+
+            fadeOut.setOnFinished(e->{
+                contentArea.getChildren().clear();
+                contentArea.getChildren().add(newCard);
+
+                animateOverlay(contentArea, (VBox) newCard);
+            });
+            fadeOut.play();
+        }else{
+            contentArea.getChildren().add(newCard);
+            animateOverlay(new StackPane(), (VBox) newCard);
+        }
     }
 
     private void handleButtonClick(int row, int col, Button btn) {
@@ -197,8 +291,6 @@ public class TicTacToeUI extends Application{
             showGameStatus('T');
         }
 
-        return;
-
     }
 
     //Disabling the buttons
@@ -246,16 +338,15 @@ public class TicTacToeUI extends Application{
         home.getStyleClass().add("home");
         home.setAlignment(Pos.CENTER);
 
-        VBox card = new VBox(20);
+        VBox card = new VBox(10);
         card.getStyleClass().add("win_card");
-        card.setMinSize(300, 250);
-        card.setMaxSize(300, 250);
+        card.setPrefSize(250, 100);
+        card.setMaxSize(250, 100);
         card.setAlignment(Pos.CENTER);
 
         card.getChildren().addAll(title,btn,home);
 
-        VBox overlay = new VBox();
-        overlay.setAlignment(Pos.CENTER);
+        StackPane overlay = new StackPane();
         overlay.getStyleClass().add("overlay");
         overlay.getChildren().add(card);
 
@@ -270,11 +361,18 @@ public class TicTacToeUI extends Application{
         });
 
         root.getChildren().add(overlay);
+        animateOverlay(overlay, card);
+        spawnConfetti();
 
     }
 
     //Returning to the Home screen
     private void showHome(){
+
+    }
+
+    private void spawnConfetti(){
+
 
     }
 
@@ -336,6 +434,24 @@ public class TicTacToeUI extends Application{
 
 
     //Animations
+    private void animateOverlay(StackPane overlay,VBox card){
+        FadeTransition fade = new FadeTransition(Duration.millis(300), overlay);
+        fade.setFromValue(0);
+        fade.setToValue(1);
+
+        fade.play();
+
+        ScaleTransition pop = new ScaleTransition(Duration.millis(150), card);
+        pop.setFromX(0.7);
+        pop.setFromY(0.7);
+
+        pop.setToX(1.0);
+        pop.setToY(1.0);
+
+        pop.play();
+
+
+    }
     private void addHoverAnimation(Node target){
         ScaleTransition scaleUp = new ScaleTransition(Duration.millis(150), target);
         scaleUp.setToX(1.1);

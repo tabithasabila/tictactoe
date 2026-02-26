@@ -137,6 +137,7 @@
     -fx-border-color: -fx-primary;
     -fx-padding: 8 20 8 20;
     -fx-background-radius: 10;
+    -fx-border-radius: 10;
 }
 
 .win_card{
@@ -148,6 +149,13 @@
 
 .overlay{
     -fx-background-color: rgba(0,0,0,0.6);
+}
+
+.player-home-card{
+    -fx-background-color: -fx-background;
+}
+
+.player-home-label{
 }
 
 /*.card-pane {
